@@ -1,31 +1,23 @@
-<div class="bg-white">
+<div id="vue-app">
+  <div class="bg-white">
+    <div class="container mx-auto py-2">
+      <input class="w-full" type="text" placeholder="Search stories"/>
+    </div>
+  </div>
 
-  <div class="container mx-auto py-2">
-    <input class="w-full" type="text" placeholder="Search stories"/>
+  <div class="bg-gray-100 grow">
+    <div class="container mx-auto py-2">
+      <h2 class="font-bold my-6">Top 15 Hacker News</h2>
+      <template v-for="story in stories">
+        <div class="bg-white p-4 my-6">
+          <h3 class="font-bold text-orange-500"><a :href="story.url">{{ story.title }}</a></h3>
+          <p>
+            by {{ story.by }} {{ story.time }}
+          </p>
+          <p class="font-bold">{{ story.comment_count }} comments</p>
+        </div>
+      </template>
+    </div>
   </div>
 </div>
 
-<div class="bg-gray-100 grow">
-  <div class="container mx-auto py-2">
-    <h2 class="font-bold my-6">Top 15 Hacker News</h2>
-    <% @stories.each do |story| %>
-      <div class="bg-white p-4 my-6">
-        <h3 class="font-bold text-orange-500"><a href="<%= story.url %>"><%= story.title %></a></h3>
-        <p>
-          by <%= story.by %> <%= story.time %>
-        </p>
-        <p class="font-bold"><%= story.comment_count %> comments</p>
-        <% story.comments.best.each do |comment| %>
-          <div class="py-2">
-            <p>
-              by <%= comment.by %> <%= comment.time %>
-            </p>
-            <p>
-              <%= sanitize comment.text %>
-            </p>
-          </div>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
-</div>

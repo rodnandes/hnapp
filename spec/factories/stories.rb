@@ -7,6 +7,6 @@ FactoryBot.define do
     score { 1 }
     title { "MyString" }
     comment_count { 1 }
-    hn_id { 1 }
+    sequence(:hn_id) { |n| n }
   end
 end

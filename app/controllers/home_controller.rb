@@ -1,8 +1,6 @@
 class HomeController < ApplicationController
   def index
     update_stories
-
-    @stories = Story.includes(:comments).all.limit(15)
   end
 
   private
