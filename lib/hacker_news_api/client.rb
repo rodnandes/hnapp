@@ -4,7 +4,7 @@ module HackerNewsApi
       parsed_body Faraday.get('https://hacker-news.firebaseio.com/v0/topstories.json')
     end
 
-    def fetch_story(story_id)
+    def fetch_item(story_id)
       parsed_body Faraday.get("https://hacker-news.firebaseio.com/v0/item/#{story_id}.json")
     end
 
