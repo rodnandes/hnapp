@@ -28,7 +28,7 @@ class Story < ApplicationRecord
 
     def top_15_stories_ids
       puts 'fetching stories ids...'
-      HackerNewsApi::Client.new.fetch_top_stories_ids.take(15)
+      HackerNewsApi::Client.new.fetch_top_stories_ids #.take(15)
     end
 
     def fetch_stories(stories_ids)
