@@ -7,15 +7,19 @@ class Comment < ApplicationRecord
     create_story_comments(story, kids_ids)
   end
 
+  private
+
   class << self
     def create_story_comments(story, kids_ids)
       return unless kids_ids
 
       new_comments_ids(kids_ids).each do |kid_id|
         item = HackerNewsApi::Client.new.fetch_item(kid_id)
-        if !item['text'].nil? && item['text'].split.size < 20
+
+        unless item['text'].nil? || item['text'].split.size < 20
           create(format_comment_attributes(item).merge(story_id: story.id))
         end
+
         create_story_comments(story, item['kids'])
       end
     end
