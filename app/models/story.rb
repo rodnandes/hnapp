@@ -1,5 +1,6 @@
 class Story < ApplicationRecord
   has_many :comments
+  default_scope { order(time: :desc) }
 
   accepts_nested_attributes_for :comments
 
