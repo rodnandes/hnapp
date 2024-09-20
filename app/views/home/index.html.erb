@@ -7,14 +7,22 @@
 
   <div class="bg-gray-100 grow">
     <div class="container mx-auto py-2">
-      <h2 class="font-bold my-6">Top 15 Hacker News</h2>
+      <h2 class="font-bold my-6 text-orange-500 text-xl">Top 15 Hacker News</h2>
       <template v-for="story in stories">
-        <div class="bg-white p-4 my-6">
-          <h3 class="font-bold text-orange-500"><a :href="story.url">{{ story.title }}</a></h3>
-          <p>
-            by {{ story.by }} {{ story.time }}
-          </p>
-          <p class="font-bold">{{ story.comment_count }} comments</p>
+        <div class="bg-white my-6">
+          <div class="p-6">
+            <h3 class="font-bold text-lg"><a :href="story.url">{{ story.title }}</a></h3>
+            <p class="text-xs mb-2">
+              by {{ story.by }} {{ story.time }}
+            </p>
+            <p class="font-bold text-sm mb-2">{{ story.comment_count }} comments</p>
+            <button @click="toggleComments($event, story.hn_id)" class="text-orange-500 text-sm">
+              {{ story.commentToggleButtonText || '+Show' }} most relevant comments
+            </button>
+          </div>
+          <div v-if="story.commentsOpened" class="border-t-2 p-2">
+            All relevant comments here...
+          </div>
         </div>
       </template>
     </div>
