@@ -11,17 +11,30 @@
       <template v-for="story in stories">
         <div class="bg-white my-6">
           <div class="p-6">
-            <h3 class="font-bold text-lg"><a :href="story.url">{{ story.title }}</a></h3>
+            <h3 class="font-bold text-lg">
+              <a :href="story.url">{{ story.title }}</a>
+            </h3>
             <p class="text-xs mb-2">
-              by {{ story.by }} {{ story.time }}
+              <a target="_blank" :href="userUrl(story.by)" class="underline">
+                by {{ story.by }} {{ formatDate(story.time) }}
+              </a>
             </p>
             <p class="font-bold text-sm mb-2">{{ story.comment_count }} comments</p>
             <button @click="toggleComments($event, story.hn_id)" class="text-orange-500 text-sm">
               {{ story.commentToggleButtonText || '+Show' }} most relevant comments
             </button>
           </div>
-          <div v-if="story.commentsOpened" class="border-t-2 p-2">
-            All relevant comments here...
+          <div v-if="story.commentsOpened" class="border-t-2 p-6">
+            <ul v-for="comment in comments[story.hn_id]">
+              <li class="mb-6">
+                <p class="text-xs mb-3">
+                  <a target="_blank" :href="userUrl(comment.by)" class="underline">
+                  {{ comment.by }} {{ formatDate(comment.time) }}
+                  </a>
+                </p>
+                <p class="text-sm mb-3">{{ comment.text }}</p>
+              </li>
+            </ul>
           </div>
         </div>
       </template>

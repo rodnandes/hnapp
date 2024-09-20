@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   root "home#index"
 
   namespace :api do
-    resources :stories, only: :index
+    resources :stories, only: [:index] do
+      resources :comments, only: [:index]
+    end
   end
 end

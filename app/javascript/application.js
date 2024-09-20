@@ -6,11 +6,12 @@ import {createApp} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
 createApp(
   {
     data: () => ({
-      stories: []
+      stories: [],
+      comments: {}
     }),
 
     created() {
-      this.fetchStories()
+      this.fetchStories();
     },
 
     methods: {
@@ -18,14 +19,30 @@ createApp(
         this.stories = await (await fetch('api/stories.json')).json()
       },
 
+      async fetchStoryComments(storyId) {
+        this.comments[storyId] = await (await fetch(`api/stories/${storyId}/comments.json`)).json()
+      },
+
       toggleComments(_event, storyId) {
         const story = this.findStory(storyId)
         story.commentsOpened = !story.commentsOpened
         story.commentToggleButtonText = story.commentsOpened ? '-Hide' : '+Show'
+
+        if (story.commentsOpened) {
+          this.fetchStoryComments(storyId)
+        }
       },
 
       findStory(storyId) {
         return this.stories.find(story => story.hn_id === storyId)
+      },
+
+      userUrl(user) {
+        return `https://news.ycombinator.com/user?id=${user}`
+      },
+
+      formatDate(date) {
+        return new Date(date).toLocaleString('pt-BR', {timeStyle: 'short'})
       }
 
     }
