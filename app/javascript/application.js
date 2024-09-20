@@ -20,6 +20,8 @@ createApp(
       },
 
       async fetchStoryComments(storyId) {
+        if(this.comments[storyId]) return;
+
         this.comments[storyId] = await (await fetch(`api/stories/${storyId}/comments.json`)).json()
       },
 
@@ -39,6 +41,12 @@ createApp(
 
       userUrl(user) {
         return `https://news.ycombinator.com/user?id=${user}`
+      },
+
+      hasComments(storyId) {
+        this.fetchStoryComments(storyId)
+
+        return this.comments[storyId]?.length > 0
       },
 
       formatDate(date) {
