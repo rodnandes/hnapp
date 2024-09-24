@@ -27,7 +27,7 @@
             </div>
           </div>
           <div v-if="story.commentsOpened && hasComments(story.hn_id)" class="border-t-2 p-6">
-            <ul v-for="comment in comments[story.hn_id]">
+            <ul v-for="comment in story.comments">
               <li class="mb-6">
                 <p class="text-xs mb-3">
                   <a target="_blank" :href="userUrl(comment.by)" class="underline">

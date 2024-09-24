@@ -19,20 +19,10 @@ createApp(
         this.stories = await (await fetch('api/stories.json')).json()
       },
 
-      async fetchStoryComments(storyId) {
-        if(this.comments[storyId]) return;
-
-        this.comments[storyId] = await (await fetch(`api/stories/${storyId}/comments.json`)).json()
-      },
-
       toggleComments(_event, storyId) {
         const story = this.findStory(storyId)
         story.commentsOpened = !story.commentsOpened
         story.commentToggleButtonText = story.commentsOpened ? '-Hide' : '+Show'
-
-        if (story.commentsOpened) {
-          this.fetchStoryComments(storyId)
-        }
       },
 
       findStory(storyId) {
@@ -44,9 +34,7 @@ createApp(
       },
 
       hasComments(storyId) {
-        this.fetchStoryComments(storyId)
-
-        return this.comments[storyId]?.length > 0
+        return this.findStory(storyId)?.comments?.length > 0
       },
 
       formatDate(date) {
