@@ -6,26 +6,6 @@ class Comment < ApplicationRecord
 
   attr_accessor :comment_hn_data, :comment_attrs
 
-  def self.update_story_comments(story)
-    hn_ids = story.story_hn_data['kids']&.map { |id| { hn_id: id } }
-    story_comments = find_or_initialize_by(hn_ids)
-
-    pp story_comments
-
-    story.comments << story_comments
-
-    story.comments.each do |comment|
-      next if comment.time.present?
-
-      comment.update_attributes_from_service
-      comment.save! if comment.changed?
-    end
-  end
-
-  def self.update_story_comments_later(story)
-    HackerNewsCommentsFetcherJob.perform_later(story)
-  end
-
   def update_attributes_from_service
     fetch_comment_data
     format_attributes
