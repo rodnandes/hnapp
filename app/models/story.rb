@@ -1,53 +1,66 @@
 class Story < ApplicationRecord
-  has_many :comments
+  has_many :comments, inverse_of: :story
   default_scope { order(time: :desc) }
+  accepts_nested_attributes_for :comments, update_only: true
 
-  accepts_nested_attributes_for :comments
+  attr_reader :story_hn_data, :story_attrs
 
-  def self.fetch_from_service
-    create_stories
+  def self.create_top_stories
+    fetch_new_top_stories_ids
+    prepare_stories_id
+    update_top_stories
+  end
+
+  def update_from_service
+    fetch_story_data
+    format_story_attributes
+    assign_attributes(@story_attrs)
+    save!
+  end
+
+  def update_comments_from_service
+    HackerNewsCommentsFetcherJob.perform_later(self)
   end
 
   private
 
-  class << self
-    def create_stories
-      return if new_stories_hn_ids.empty?
+  def self.prepare_stories_id
+    existing_stories_ids = Story.where.not(time: nil).limit(15).pluck(:hn_id)
+    hn_ids = (@top_stories_ids - existing_stories_ids).map { |id| { hn_id: id } }
+    transaction { find_or_create_by!(hn_ids) }
+  end
 
-      fetch_stories(new_stories_hn_ids).map do |story|
-        story_attributes = format_story_attributes(story)
-        new_story = create_with(story_attributes).find_or_create_by(hn_id: story_attributes[:hn_id])
+  def self.update_top_stories
+    @top_stories_ids.each do |story_id|
+      story = Story.find_by(hn_id: story_id)
+      return if story.nil?
 
-        Comment.fetch_from_service(new_story, story['kids'])
+      if story.time.nil?
+        story.update_from_service
+        story.update_comments_from_service
       end
     end
+  end
 
-    def new_stories_hn_ids
-      top_15_stories_ids - pluck(:hn_id)
-    end
+  def self.fetch_new_top_stories_ids
+    top_500_stories_ids = HackerNewsApi::Client.fetch_top_stories_ids
+    @top_stories_ids = top_500_stories_ids.take(15)
+  end
 
-    def top_15_stories_ids
-      puts 'fetching stories ids...'
-      HackerNewsApi::Client.new.fetch_top_stories_ids #.take(15)
-    end
+  def fetch_story_data
+    @story_hn_data = HackerNewsApi::Client.fetch_item(hn_id)
+  end
 
-    def fetch_stories(stories_ids)
-      stories_ids.map do |story_id|
-        HackerNewsApi::Client.new.fetch_item(story_id)
-      end
-    end
-
-    def format_story_attributes(story_data)
-      {
-        by: story_data['by'],
-        time: Time.at(story_data['time']),
-        text: story_data['text'],
-        url: story_data['url'],
-        score: story_data['score'],
-        title: story_data['title'],
-        comment_count: story_data['descendants'],
-        hn_id: story_data['id'],
-      }
-    end
+  def format_story_attributes
+    @story_attrs = {
+      by: @story_hn_data['by'],
+      time: Time.at(@story_hn_data['time']),
+      text: @story_hn_data['text'],
+      url: @story_hn_data['url'],
+      score: @story_hn_data['score'],
+      title: @story_hn_data['title'],
+      comment_count: @story_hn_data['descendants'],
+      hn_id: @story_hn_data['id']
+    }
   end
 end

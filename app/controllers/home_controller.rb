@@ -1,6 +1,6 @@
 class HomeController < ApplicationController
   def index
-    Story.fetch_from_service
+    Story.create_top_stories
   end
 
 end
