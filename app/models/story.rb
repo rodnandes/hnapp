@@ -18,45 +18,32 @@ class Story < ApplicationRecord
     save!
   end
 
-  def update_comments_from_service_job
-    HackerNewsCommentsFetcherJob.perform_later(self, @story_hn_data['kids']) unless @story_hn_data['kids'].nil?
-  end
-
-  def update_comments_from_service(comments_hn_ids)
-    existing_comments_ids = comments.where.not(time: nil).pluck(:id)
-    hn_ids = (comments_hn_ids - existing_comments_ids).map { |id| { hn_id: id } }
-    story_comments = Comment.build(hn_ids)
-
-    self.comments << story_comments
-    self.comments.each do |comment|
-      comment.update_attributes_from_service
-      comment.save! if comment.changed?
-    end
-  end
-
   private
 
   def self.prepare_stories_id
-    existing_stories_ids = Story.where.not(time: nil).limit(15).pluck(:hn_id)
-    hn_ids = (@top_stories_ids - existing_stories_ids).map { |id| { hn_id: id } }
+    hn_ids = new_top_stories_ids.map { |id| { hn_id: id } }
     upsert_all(hn_ids, unique_by: :hn_id)
   end
 
-  def self.update_top_stories
-    @top_stories_ids.each do |story_id|
-      story = Story.find_by(hn_id: story_id)
-      return if story.nil?
+  def self.existing_stories_ids
+    where.not(time: nil).pluck(:hn_id)
+  end
 
-      if story.time.nil?
-        story.update_from_service
-        story.update_comments_from_service_job
-      end
+  def self.new_top_stories_ids
+    @top_stories_ids.take(15) - existing_stories_ids
+  end
+
+  def self.update_top_stories
+    new_top_stories_ids.each do |story_id|
+      story = Story.find_by(hn_id: story_id)
+      return if story.nil? || !story.time.nil?
+
+      story.update_from_service
     end
   end
 
   def self.fetch_new_top_stories_ids
-    top_500_stories_ids = HackerNewsApi::Client.fetch_top_stories_ids
-    @top_stories_ids = top_500_stories_ids.take(15)
+    @top_stories_ids = HackerNewsApi::Client.fetch_top_stories_ids
   end
 
   def fetch_story_data
