@@ -14,11 +14,17 @@ class Story < ApplicationRecord
   def update_from_service
     fetch_story_data
     format_story_attributes
-    assign_attributes(@story_attrs)
+    assign_attributes(@story_attrs.merge!(story_comments_attributes))
     save!
   end
 
   private
+
+  def story_comments_attributes
+    return {} if @story_hn_data['kids'].nil?
+
+    { comments_attributes: @story_hn_data['kids'].map { |id| { hn_id: id } } }
+  end
 
   def self.prepare_stories_id
     hn_ids = new_top_stories_ids.map { |id| { hn_id: id } }

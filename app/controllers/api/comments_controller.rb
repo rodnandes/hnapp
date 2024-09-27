@@ -2,7 +2,11 @@ class Api::CommentsController < ApplicationController
   before_action :set_story
 
   def index
-    @comments = @story&.comments
+    if @story.comment_count != @story.comments.count
+      Comment.find_or_create_comments(@story)
+    end
+
+    @comments = @story.comments
   end
 
   private
