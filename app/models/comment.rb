@@ -44,7 +44,9 @@ class Comment < ApplicationRecord
 
   def fetch_comment_data
     puts "fetching comment #{hn_id} data (#{story.hn_id})..."
-    @comment_hn_data = HackerNewsApi::Client.fetch_item(hn_id)
+    @hn_api ||= HackerNewsApi::Client.new
+
+    @comment_hn_data = @hn_api.get_item(hn_id)
   end
 
   def format_attributes

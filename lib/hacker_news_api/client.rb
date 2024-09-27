@@ -1,17 +1,25 @@
+require 'faraday/typhoeus'
+
 module HackerNewsApi
   class Client
-    def self.fetch_top_stories_ids
-      parsed_body Faraday.get('https://hacker-news.firebaseio.com/v0/topstories.json')
+    def get_top_stories_ids
+      response = connection.get('/v0/topstories.json')
+
+      JSON.parse(response.body)
     end
 
-    def self.fetch_item(story_id)
-      parsed_body Faraday.get("https://hacker-news.firebaseio.com/v0/item/#{story_id}.json")
+    def get_item(item_id)
+      response = connection.get("/v0/item/#{item_id}.json")
+
+      JSON.parse(response.body)
     end
 
     private
 
-    def self.parsed_body(response)
-      JSON.parse response.body
+    def connection
+      @connection ||= Faraday.new(url: "https://hacker-news.firebaseio.com") do |faraday|
+        faraday.adapter :typhoeus
+      end
     end
   end
 end

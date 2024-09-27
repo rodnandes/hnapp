@@ -49,11 +49,13 @@ class Story < ApplicationRecord
   end
 
   def self.fetch_new_top_stories_ids
-    @top_stories_ids = HackerNewsApi::Client.fetch_top_stories_ids
+    @hn_api ||= HackerNewsApi::Client.new
+    @top_stories_ids = @hn_api.get_top_stories_ids
   end
 
   def fetch_story_data
-    @story_hn_data = HackerNewsApi::Client.fetch_item(hn_id)
+    @hn_api ||= HackerNewsApi::Client.new
+    @story_hn_data = @hn_api.get_item(hn_id)
   end
 
   def format_story_attributes

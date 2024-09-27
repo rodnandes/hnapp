@@ -41,6 +41,7 @@ gem "tailwindcss-rails", "~> 2.7"
 
 # Use Faraday for external API calls
 gem 'faraday'
+gem "faraday-typhoeus", "~> 1.1"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
