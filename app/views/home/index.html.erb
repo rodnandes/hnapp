@@ -1,13 +1,14 @@
 <div id="vue-app">
   <div class="bg-white">
     <div class="container mx-auto py-2">
-      <input class="w-full" type="text" placeholder="Search stories"/>
+      <input @change="searching($event)" class="w-full" type="text" placeholder="Search stories"/>
     </div>
   </div>
 
   <div class="bg-gray-100 grow">
     <div class="container mx-auto py-2">
-      <h2 class="font-bold my-6 text-orange-500 text-xl">Top 15 Hacker News</h2>
+      <h2 class="font-bold my-6 text-orange-500 text-xl">{{ searchTerm == '' ? 'Top 15 Hacker News' : `Search results for:
+        ${searchTerm}` }}</h2>
       <template v-for="story in stories">
         <div class="bg-white my-6">
           <div class="p-6">

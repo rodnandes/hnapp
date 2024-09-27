@@ -8,6 +8,12 @@ module HackerNewsApi
       JSON.parse(response.body)
     end
 
+    def get_latest_stories_ids
+      response = connection.get('/v0/newstories.json')
+
+      JSON.parse(response.body)
+    end
+
     def get_item(item_id)
       response = connection.get("/v0/item/#{item_id}.json")
 

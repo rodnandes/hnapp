@@ -7,7 +7,8 @@ createApp(
   {
     data: () => ({
       stories: [],
-      comments: {}
+      comments: {},
+      searchTerm: ''
     }),
 
     created() {
@@ -16,11 +17,15 @@ createApp(
 
     methods: {
       async fetchStories() {
-        this.stories = await (await fetch('api/stories.json')).json()
+        if (this.searchTerm === '') {
+          this.stories = await (await fetch('api/stories.json')).json()
+        } else {
+          this.stories = await (await fetch(`api/stories/search.json?q=${this.searchTerm}`)).json()
+        }
       },
 
       async fetchStoryComments(storyId) {
-        if(this.comments[storyId]) return;
+        if (this.comments[storyId]) return;
 
         this.comments[storyId] = await (await fetch(`api/stories/${storyId}/comments.json`)).json()
       },
@@ -56,6 +61,11 @@ createApp(
           minute: '2-digit',
           hour12: false,
         })
+      },
+
+      searching(event) {
+        this.searchTerm = event.target.value
+        this.fetchStories()
       }
 
     }

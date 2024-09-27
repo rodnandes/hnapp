@@ -3,7 +3,7 @@ class Story < ApplicationRecord
   default_scope { order(time: :desc) }
   accepts_nested_attributes_for :comments, update_only: true
 
-  attr_reader :story_hn_data, :story_attrs
+  attr_accessor :story_hn_data, :story_attrs
 
   def self.create_top_stories
     fetch_new_top_stories_ids
@@ -16,6 +16,27 @@ class Story < ApplicationRecord
     format_story_attributes
     assign_attributes(@story_attrs.merge!(story_comments_attributes))
     save!
+  end
+
+  def self.api_search(query)
+    @hn_api ||= HackerNewsApi::Client.new
+    latest_stories_ids = @hn_api.get_latest_stories_ids
+    stories = []
+
+    latest_stories_ids.each do |story_id|
+      result = @hn_api.get_item(story_id)
+      next unless result['title'].downcase.include? query.downcase
+
+      story = Story.new
+      story.story_hn_data = result
+      story.send(:format_story_attributes)
+      story.assign_attributes(story.story_attrs)
+      stories << story
+
+      break if stories.size == 10
+    end
+
+    stories
   end
 
   private
